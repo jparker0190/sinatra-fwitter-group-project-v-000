@@ -1,57 +1,53 @@
 class UsersController < ApplicationController
 
-	get '/login' do 
-		logged_in? ? (redirect '/tweets') : (erb :'/users/login')
-	end
+	get '/users/:slug' do
+    @user = User.find_by_slug(params[:slug])
+    erb :'users/show'
+  end
 
+  get '/signup' do
+    if !logged_in?
+      erb :'users/create_user', locals: {message: "Please sign up before you sign in"}
+    else
+      redirect to '/tweets'
+    end
+  end
 
-	post '/login' do
-		user = User.find_by(username: params[:username])
-			if user && user.authenticate(params[:password])
-				session[:user_id] = user.id
-				redirect '/tweets'
-			elsif !user
-				redirect '/signup'
-				flash[:message] = "Invalid user.  Please sign up."
-			end
-	end
+  post '/signup' do
+    if params[:username] == "" || params[:email] == "" || params[:password] == ""
+      redirect to '/signup'
+    else
+      @user = User.new(:username => params[:username], :email => params[:email], :password => params[:password])
+      @user.save
+      session[:user_id] = @user.id
+      redirect to '/tweets'
+    end
+  end
 
+  get '/login' do
+    if !logged_in?
+      erb :'users/login'
+    else
+      redirect to '/tweets'
+    end
+  end
 
-	get '/logout' do 
-		session.clear
-		success
-		redirect '/login'
-	end
+  post '/login' do
+    user = User.find_by(:username => params[:username])
+    if user && user.authenticate(params[:password])
+      session[:user_id] = user.id
+      redirect to "/tweets"
+    else
+      redirect to '/signup'
+    end
+  end
 
-	
-	get '/signup' do 
-		if logged_in?
-			success
-			redirect '/tweets'
-		else
-			erb :'/users/create_user'
-		end
-	end
-
-
-	post '/signup' do 
-		@user = User.create(params) if filled_out(params)
-			if @user
-				@user.id = User.all.last.id
-				session[:user_id] = @user.id
-				success
-				redirect '/tweets'
-			elsif !@user && !logged_in?
-				failure
-				redirect '/signup'
-			end
-	end
-
-
-	get '/users/:slug' do 
-		@user = User.find_by_slug(:slug)
-		erb :'/users/show'
-	end
-
-
+  get '/logout' do
+    if logged_in?
+      session.destroy
+      redirect to '/login'
+    else
+      redirect to '/'
+    end
+  end
 end

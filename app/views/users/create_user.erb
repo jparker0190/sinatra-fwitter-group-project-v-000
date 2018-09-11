@@ -1,17 +1,13 @@
-<% if flash.has?(:message) %>
-<%= flash[:message] %>
-<% end %>
-<h1>Welcome, new user.</h1>
+<center><h2>Users</h2>
 
-<h2>Please choose a user name:</h2>
-<form action="/signup" method="post">
-<input type="text" name="username" id="user_name">
-<br>
-<h2>Your email:</h2>
-<input type="text" name="email" id="email">
-<br>
-<h2>Please choose a password:</h2>
-<input type="text" name="password" id="password">
-<br><br>
-<input type="submit" value="Create User">
-</form>
+<% unless locals.empty? %>
+  <%= message%>
+<% end %>
+<h3> Sign Up</h3>
+  <form action="/signup" method="POST">
+    <p>Name: <input type="text" name="username"></p>
+    <p>Email: <input type="text" name="email"></p>
+    <p>Password: <input type="text" name="password"></p>
+    <input class="btn btn-primary" type="submit">
+  </form>
+</center>
